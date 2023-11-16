@@ -7,27 +7,31 @@ def detect_pattent(img):
     img = cv2.imread(img)
     # Convert to grayscale
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    thresh = cv2.threshold(gray, 80, 253, cv2.THRESH_BINARY_INV)[1]
 
-    canvas = cv2.Canny(thresh, 100, 170)
-
-    B = cv2.getStructuringElement(cv2.MORPH_RECT, (2,2))
+    thresh = cv2.threshold(gray, 100, 254, cv2.THRESH_BINARY_INV)[1]
+    B = cv2.getStructuringElement(cv2.MORPH_RECT, (3,3))
     Aop = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, B)
-
-    plt.figure(figsize=(10,5))
-    plt.subplot(2,2,1)
-    plt.imshow(img)
-    plt.subplot(2,2,2)
-    plt.imshow(gray, cmap='gray')
-    plt.subplot(2,2,3)
-    plt.imshow(thresh, cmap='gray')
-    plt.subplot(2,2,4)
-    plt.imshow(Aop, cmap='gray')
-    plt.show()
-    # cv2.imshow('Patente', thresh)
-    # cv2.imshow('Patente', canvas)
+    # countors = cv2.findContours(Aop, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)[0]
+    connected_components = cv2.connectedComponentsWithStats(Aop, 4, cv2.CV_32S)
+    inverted = cv2.bitwise_not(connected_components[1])
+    plt.imshow(inverted, cmap='gray')
     
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+    license_ratio = 0.5
+    min_w = 0
+    max_w = 10
+    min_h = 0
+    max_h = 20
+    candidates = []
+    for cnt in connected_components[1]:
+        x,y,w,h = cv2.boundingRect(cnt)
+        ratio = float(w)/h
+        if (np.isclose(ratio, license_ratio, atol=0.7)):
+            if max_w > w >= min_w and max_h > h >= min_h:
+                candidates.append(cnt)
 
-detect_pattent('Patentes/img01.png')
+    plt.imshow(candidates[0], cmap='gray')
+
+    return thresh
+
+img = 'Patentes/img01.png'
+img = detect_pattent(img)
