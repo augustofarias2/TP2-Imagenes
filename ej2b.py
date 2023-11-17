@@ -28,13 +28,28 @@ def imshow(img, new_fig=True, title=None, color_img=False, blocking=False, color
 # limpiar de ruido?
 
 #segmentar
-img = cv2.imread('Patentes\ejemplo_limpio_derecho.png',cv2.IMREAD_GRAYSCALE)
-img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
-imshow(img=img)
 
-num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(img, connectivity= 8, ltype=cv2.CV_32S)
-contours, hierarchy = cv2.findContours(img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+img = cv2.imread('Patentes\ejemplo_limpio_derecho.png',cv2.IMREAD_GRAYSCALE)
+
+bw = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+imshow(img=bw)
+
+num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(bw, connectivity= 8, ltype=cv2.CV_32S)
+contours, hierarchy = cv2.findContours(bw, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
 imshow(img=labels)
 
 # metodo ratio ?
+
+
+
+
+
+
+
+
+
+
+
+# muestro la original con blocking para que no se cierre todo
+imshow(img=img, blocking=True)
