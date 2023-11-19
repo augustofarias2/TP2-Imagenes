@@ -37,3 +37,5 @@ plt.imshow(img_contours), plt.show()
 #Se utiliza cv2.approxPolyDP para aproximar los contornos y determinar el número de lados.
 #Se clasifican las formas según el número de lados.
 #Se dibujan los contornos y se etiquetan las formas encontradas en la imagen original.
+#Encontrar componentes conectadas
+#num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(fop_cls, 4, cv2.CV_32S)
