@@ -2,22 +2,6 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Defininimos función para mostrar imágenes
-def imshow(img, new_fig=True, title=None, color_img=False, blocking=False, colorbar=True, ticks=False):
-    if new_fig:
-        plt.figure()
-    if color_img:
-        plt.imshow(img)
-    else:
-        plt.imshow(img, cmap='gray')
-    plt.title(title)
-    if not ticks:
-        plt.xticks([]), plt.yticks([])
-    if colorbar:
-        plt.colorbar()
-    if new_fig:        
-        plt.show(block=blocking)
-
 def detect_patent(filename):
     # Read the image
     image = cv2.imread(filename)
@@ -65,64 +49,66 @@ def detect_patent(filename):
 
 
 def detect_characters(patent, filename, V_threshold):
-        # Convert the image from BGR to HSV
-        hsv_image = cv2.cvtColor(patent, cv2.COLOR_RGB2HSV)
+    # Convert the image from BGR to HSV
+    hsv_image = cv2.cvtColor(patent, cv2.COLOR_RGB2HSV)
 
-        # Define lower and upper bounds for white color in HSV format
-        lower_white = np.array([0, 0, V_threshold], dtype=np.uint8)
-        upper_white = np.array([180, 50, 255], dtype=np.uint8)
-        # Create a mask to identify white pixels within the specified HSV range
-        white_mask = cv2.inRange(hsv_image, lower_white, upper_white)
-        # Bitwise AND operation to extract white pixels
-        whitish_pixels = cv2.bitwise_and(patent, patent, mask=white_mask)
+    # Define lower and upper bounds for white color in HSV format
+    lower_white = np.array([0, 0, V_threshold], dtype=np.uint8)
+    upper_white = np.array([180, 50, 255], dtype=np.uint8)
+    # Create a mask to identify white pixels within the specified HSV range
+    white_mask = cv2.inRange(hsv_image, lower_white, upper_white)
+    # Bitwise AND operation to extract white pixels
+    whitish_pixels = cv2.bitwise_and(patent, patent, mask=white_mask)
 
-        # Convert the Value channel to grayscale
-        gray = whitish_pixels[:, :, 2]
-        #cv2.imshow(filename, gray)
-        #cv2.waitKey(0)
-        _, binary = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    # Convert the Value channel to grayscale
+    gray = whitish_pixels[:, :, 2]
+    #cv2.imshow(filename, gray)
+    #cv2.waitKey(0)
+    _, binary = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
-        filtered = binary.copy()
-        #cv2.imshow(filename, filtered)
-        #cv2.waitKey(0)
-        
-        num_labels, labels, stats, centroids  = cv2.connectedComponentsWithStats(filtered, 4, cv2.CV_32S)
+    filtered = binary.copy()
+    #cv2.imshow(filename, filtered)
+    #cv2.waitKey(0)
+    
+    num_labels, labels, stats, centroids  = cv2.connectedComponentsWithStats(filtered, 4, cv2.CV_32S)
 
-        characters = []
-        highlighted = patent.copy()
-        for st in stats:
-            x, y, w, h, area = st
-            ratio = w / h
-            if (0.3 < ratio < 1) and (10 < h):
-                highlighted = cv2.rectangle(highlighted, (x, y), (x + w, y + h), color=(0, 255, 0), thickness=1)
-                characters.append(patent[y-2:y+h+2, x-2:x+w+2])
+    characters = []
+    highlighted = patent.copy()
+    for st in stats:
+        x, y, w, h, area = st
+        ratio = w / h
+        if (0.3 < ratio < 1) and (10 < h):
+            highlighted = cv2.rectangle(highlighted, (x, y), (x + w, y + h), color=(0, 255, 0), thickness=1)
+            characters.append((patent[y-2:y+h+2, x-2:x+w+2], x))
 
-        #cv2.imshow(filename, highlighted)
-        #cv2.waitKey(0)
-        return characters
+    characters = sorted(characters, key=lambda x: x[1])
+    characters = [x[0] for x in characters]
+    #cv2.imshow(filename, highlighted)qqqq
+    #cv2.waitKey(0)
+    return characters
 
 
-def show_all_characters():
+def show_full_patents_detected():
     for i in range (1,13):
         filename = 'img' + ("0"+str(i) if i<=9 else str(i))
+
+        #Encuentro de patentes
         possible_patents = detect_patent('Patentes/' + filename + '.png')
+
+        #Encuentro de caracteres
+        #Si no se detecta ninguna patente, se pasa a la siguiente imagen
         if possible_patents == []:
             print('No se detectó posible patente en ' + filename)
             continue
-        six_char = False
+        #Se intenta encontrar los 6 caracteres de la posible patente
         for patent in possible_patents:
             characters = detect_characters(patent, filename, 140)
-            if len(characters) == 6:
-                six_char = True
-                break
-            else:
+            if len(characters) != 6:
                 characters = detect_characters(patent, filename, 120)
-                if len(characters) == 6:
-                    six_char = True
-                    break
-        if six_char:
-            #imshow(patent)
 
+        #Se muestra la imagen con los caracteres detectados si se encontraron 6
+        if len(characters) == 6:
+            cv2.imshow(filename, patent)
             fig, axs = plt.subplots(1, 6, figsize=(4, 1))
             for j in range(len(characters)):
                 axs[j].axis('off')
@@ -134,4 +120,4 @@ def show_all_characters():
             print('No se detectaron 6 caracteres en ' + filename)
 
 
-show_all_characters()
+show_full_patents_detected()
