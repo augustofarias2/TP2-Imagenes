@@ -51,12 +51,12 @@ def detect_patent(filename):
     num_labels, labels, stats, centroids  = cv2.connectedComponentsWithStats(filtered, 4, cv2.CV_32S)
 
     possible_patents = []
+    highlighted = image.copy()
     for st in stats:
         x, y, w, h, area = st
         ratio = w / h
         if  (1 < ratio < 3) and (65 < w < 110) and (20 < x < 620) and (20 < y < 460):
-
-            highlighted = cv2.rectangle(image.copy(), (x, y), (x + w, y + h), color=(0, 255, 0), thickness=1)
+            highlighted = cv2.rectangle(highlighted, (x, y), (x + w, y + h), color=(0, 255, 0), thickness=1)
             possible_patents.append(image[y-5:y+h+5, x-5:x+w+5])
 
     #cv2.imshow(filename, highlighted)
@@ -64,13 +64,13 @@ def detect_patent(filename):
     return possible_patents
 
 
-def detect_characters(patent, filename):
+def detect_characters(patent, filename, V_threshold):
         # Convert the image from BGR to HSV
         hsv_image = cv2.cvtColor(patent, cv2.COLOR_RGB2HSV)
 
         # Define lower and upper bounds for white color in HSV format
-        lower_white = np.array([0, 0, 120], dtype=np.uint8)
-        upper_white = np.array([180, 75, 255], dtype=np.uint8)
+        lower_white = np.array([0, 0, V_threshold], dtype=np.uint8)
+        upper_white = np.array([180, 50, 255], dtype=np.uint8)
         # Create a mask to identify white pixels within the specified HSV range
         white_mask = cv2.inRange(hsv_image, lower_white, upper_white)
         # Bitwise AND operation to extract white pixels
@@ -78,38 +78,50 @@ def detect_characters(patent, filename):
 
         # Convert the Value channel to grayscale
         gray = whitish_pixels[:, :, 2]
+        #cv2.imshow(filename, gray)
+        #cv2.waitKey(0)
+        _, binary = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+
+        filtered = binary.copy()
+        #cv2.imshow(filename, filtered)
+        #cv2.waitKey(0)
         
-        num_labels, labels, stats, centroids  = cv2.connectedComponentsWithStats(gray, 4, cv2.CV_32S)
+        num_labels, labels, stats, centroids  = cv2.connectedComponentsWithStats(filtered, 4, cv2.CV_32S)
 
         characters = []
+        highlighted = patent.copy()
         for st in stats:
             x, y, w, h, area = st
             ratio = w / h
             if (0.3 < ratio < 1) and (10 < h):
-                highlighted = cv2.rectangle(patent.copy(), (x, y), (x + w, y + h), color=(0, 255, 0), thickness=1)
-                characters.append(patent[y:y+h, x:x+w])
+                highlighted = cv2.rectangle(highlighted, (x, y), (x + w, y + h), color=(0, 255, 0), thickness=1)
+                characters.append(patent[y-2:y+h+2, x-2:x+w+2])
 
         #cv2.imshow(filename, highlighted)
         #cv2.waitKey(0)
         return characters
 
 
-
 def show_all_characters():
     for i in range (1,13):
-        filename = 'Patentes/img'+("0"+str(i) if i<=9 else str(i))+'.png'
-        possible_patents = detect_patent(filename)
+        filename = 'img' + ("0"+str(i) if i<=9 else str(i))
+        possible_patents = detect_patent('Patentes/' + filename + '.png')
         if possible_patents == []:
             print('No se detectó posible patente en ' + filename)
             continue
         six_char = False
         for patent in possible_patents:
-            characters = detect_characters(patent, filename)
+            characters = detect_characters(patent, filename, 140)
             if len(characters) == 6:
                 six_char = True
                 break
+            else:
+                characters = detect_characters(patent, filename, 120)
+                if len(characters) == 6:
+                    six_char = True
+                    break
         if six_char:
-            imshow(patent)
+            #imshow(patent)
 
             fig, axs = plt.subplots(1, 6, figsize=(4, 1))
             for j in range(len(characters)):
