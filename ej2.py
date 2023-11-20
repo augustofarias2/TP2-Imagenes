@@ -79,9 +79,11 @@ def detect_characters(patent, filename, V_threshold):
         ratio = w / h
         if (0.3 < ratio < 1) and (10 < h):
             highlighted = cv2.rectangle(highlighted, (x, y), (x + w, y + h), color=(0, 255, 0), thickness=1)
-            characters.append(patent[y-2:y+h+2, x-2:x+w+2])
+            characters.append((patent[y-2:y+h+2, x-2:x+w+2], x))
 
-    #cv2.imshow(filename, highlighted)
+    characters = sorted(characters, key=lambda x: x[1])
+    characters = [x[0] for x in characters]
+    #cv2.imshow(filename, highlighted)qqqq
     #cv2.waitKey(0)
     return characters
 
