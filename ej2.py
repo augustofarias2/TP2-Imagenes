@@ -89,22 +89,24 @@ def detect_characters(patent, filename, V_threshold):
 def show_full_patents_detected():
     for i in range (1,13):
         filename = 'img' + ("0"+str(i) if i<=9 else str(i))
+
+        #Encuentro de patentes
         possible_patents = detect_patent('Patentes/' + filename + '.png')
+
+        #Encuentro de caracteres
+        #Si no se detecta ninguna patente, se pasa a la siguiente imagen
         if possible_patents == []:
             print('No se detectó posible patente en ' + filename)
             continue
-        six_char = False
+        #Se intenta encontrar los 6 caracteres de la posible patente
         for patent in possible_patents:
             characters = detect_characters(patent, filename, 140)
-            if len(characters) == 6:
-                six_char = True
-                break
-            else:
+            if len(characters) != 6:
                 characters = detect_characters(patent, filename, 120)
-                if len(characters) == 6:
-                    six_char = True
-                    break
-        if six_char:
+
+        #Se muestra la imagen con los caracteres detectados si se encontraron 6
+        if len(characters) == 6:
+            cv2.imshow(filename, patent)
             fig, axs = plt.subplots(1, 6, figsize=(4, 1))
             for j in range(len(characters)):
                 axs[j].axis('off')
