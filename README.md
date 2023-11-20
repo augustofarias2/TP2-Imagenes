@@ -1,6 +1,5 @@
 # Trabajo Práctico de Procesamiento de Imágenes I
 
-## Objetivo del Trabajo Práctico
 ### Integrantes:
 
 - Farias, Augusto
