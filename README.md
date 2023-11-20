@@ -24,7 +24,7 @@ El código también realiza la clasificación de distintos tipos de monedas y re
 
 #### c) Determinación Automática de Números en Dados
 
-Para este ejercicio puede ejecutar parte por parte el archivo `ej1C.py`
+Para este ejercicio puede ejecutar parte por parte el archivo `ej1_C.py`
 
 El mismo script determina el número presente en cada dado. Es decir qué cara del dado observamos
 
@@ -40,6 +40,9 @@ Este script implementa un algoritmo para detectar automáticamente las patentes 
 #### b) Segmentación de Caracteres en la Patente
 
 El mismo script implementa un algoritmo para segmentar los caracteres de la patente detectada en el punto anterior. También informa las distintas etapas de procesamiento y muestra los resultados de cada etapa.
+
+## Informe
+En el archivo `informe_tp2_PDI.pdf` se encuentra el informe realizado. En el mismo se encuentra el paso a paso de cada ejercicio con ejemplos.
 
 ## Requisitos
 - Python 3.10
