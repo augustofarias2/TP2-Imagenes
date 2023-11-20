@@ -7,19 +7,20 @@ img= cv2.imread("monedas.jpg")
 img_color = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 plt.imshow(img_color), plt.show(block = False)
 
-#_____________________________________________________________EJERCICIO 1________________________________________________________________________________________________
+#_____________________________________________________________EJERCICIO a________________________________________________________________________________________________
 #________________________________________________________________________________________________________________________________________________________________________
 #Imagen filtrada gray scale
-img_gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+img_gray = cv2.cvtColor(img_color, cv2.COLOR_RGB2GRAY)
 plt.imshow(img_gray, cmap="gray"), plt.show(block = False)
 
 #Filtro pasabajo
-img_filtered = cv2.medianBlur(img_gray, 6)
+img_filtered = cv2.medianBlur(img_gray, 7)
 plt.imshow(img_filtered, cmap = "gray"), plt.show(block=False)
 
 #Canny
 img_canny_CV2 = cv2.Canny(img_filtered, 35, 110)
 plt.imshow(img_canny_CV2, cmap="gray"), plt.show(block = False)
+
 
 #Dilato
 img_dilated = cv2.dilate(img_canny_CV2, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (12, 12)), iterations=1)
@@ -98,21 +99,18 @@ for i in range(1, num_labels):
     else:
         labeled_image[obj == 1, 1] = 255
     
-plt.figure(); plt.imshow(labeled_image); plt.show(block=False)
+plt.imshow(labeled_image); plt.show(block=False)
 
-#_____________________________________________________________EJERCICIO 2________________________________________________________________________________________________
+#_____________________________________________________________EJERCICIO b________________________________________________________________________________________________
 #________________________________________________________________________________________________________________________________________________________________________
 # Convertir a profundidad de 8 bits por canal
 monedas_8u = labeled_image[:, :, 2].astype(np.uint8)
 
-# Convertir a escala de grises
-monedas_gray = cv2.cvtColor(monedas_8u, cv2.COLOR_BGR2GRAY)
-
-# Aplicar umbral (opcional, dependiendo de tus necesidades)
-_, monedas_binary = cv2.threshold(monedas_gray, 15, 255, cv2.THRESH_BINARY)
+# Aplicar umbral
+_, monedas_binary = cv2.threshold(monedas_8u, 15, 255, cv2.THRESH_BINARY)
 plt.imshow(monedas_binary, cmap= "gray"), plt.show(block=False)
 
-# Supongamos que 'stats' es tu matriz de estadísticas y 'original_image' es tu imagen original
+
 num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(monedas_binary, 4, cv2.CV_32S)
 
 # Definir los rangos de áreas para cada tipo de moneda
@@ -125,6 +123,7 @@ area_rangos = {
 # Crear una lista para almacenar el tipo de cada moneda
 tipos_monedas = []
 cant_monedas = {"10 centavos": 0,"50 centavos": 0, "1 peso": 0}
+
 # Clasificar cada moneda según su área
 for i in range(1, stats.shape[0]):
     area = stats[i, cv2.CC_STAT_AREA]
@@ -178,7 +177,7 @@ for contour in contours:
 # Mostrar la imagen con texto
 plt.imshow(etiquetas_image), plt.show(block=False)
 
-#_____________________________________________________________EJERCICIO 3________________________________________________________________________________________________
+#_____________________________________________________________EJERCICIO c________________________________________________________________________________________________
 #________________________________________________________________________________________________________________________________________________________________________
 # Encontrar las coordenadas de los píxeles verdes en la imagen con dados
 coordenadas_verdes = cv2.findNonZero(labeled_image[:, :, 1])
@@ -194,67 +193,4 @@ for coord in coordenadas_verdes:
 # Mostrar la máscara con las regiones segmentadas
 plt.imshow(img_dados, cmap = "gray"), plt.show(block=False)
 
-
-#Canny
-img_canny_dados = cv2.Canny(img_dados, 35, 110)
-plt.imshow(img_canny_dados, cmap="gray"), plt.show(block = False)
-
-#Dilato
-# kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (12, 12))
-# img_dilated = cv2.dilate(img_canny_CV2, kernel, iterations=1)
-img_dilated_dado = cv2.dilate(img_canny_dados, cv2.getStructuringElement(cv2.MORPH_RECT, (2, 2)), iterations=1)
-plt.imshow(img_dilated_dado, cmap = "gray"), plt.show(block=False)
-
-
-#Obtener estructura
-img_open_dado = cv2.morphologyEx(img_dilated_dado, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3)))
-img_close_dado = cv2.morphologyEx(img_open_dado, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3)))
-plt.imshow(img_close_dado, cmap="gray")
-plt.show(block= False)
-
-
-
-# ________________________________________________________________________________________________________________________________________________________________________
-
-
-
-
-
-
-
-
-
-
-
-
-umbral_moneda = 1000
-# Encontrar contornos en la imagen después de la morfología
-contours, _ = cv2.findContours(img_fh_v2, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-# Crear una copia de la imagen original para dibujar contornos y etiquetas de color
-img_labeled = img_color.copy()
-
-# Iterar sobre los contornos y dibujar etiquetas de color
-for contour in contours:
-    area = cv2.contourArea(contour)
-    if area > umbral_moneda:  # Puedes ajustar este umbral según tus necesidades
-        cv2.drawContours(img_labeled, [contour], 0, (0, 0, 255), 2)  # Dibujar contorno en rojo
-    # else:
-    #     cv2.drawContours(img_labeled, [contour], 0, (255, 0, 0), 2)  # Dibujar contorno en azul
-
-# Mostrar la imagen con contornos y etiquetas de color
-plt.imshow(img_labeled)
-plt.title('Objetos detectados')
-plt.show()
-
-
-# escala de grises
-# filtro pasa bajos
-# canny
-# dilato
-# relleno
-# aplico morfologia para mejorar
-# luego clasifico en factor de forma
-#Los dados los pego en otra, elimino el fondo
-#Relleno los circulos, uso formula para eliminar los que no sean circulos
-# pego la mascara de color sobre la imagen original para que quede mas lindo
+cv2.imwrite("dadostp2.jpg", img_dados) #guardo imagen de dados para utilizar en ejercicio C

@@ -10,7 +10,7 @@
 ## Objetivo del Trabajo Práctico
 
 ### Problema 1 – Detección y Clasificación de Monedas y Dados
-Puedes ejecutar parte por parte del archivo `ej1.py` en la terminal python3 para observasr el procedimiento y resultados del ejercicio.
+Puedes ejecutar parte por parte del archivo `ej1.py` en la terminal python3 para observasr el procedimiento y resultados del ejercicio 1 apartado a y b.
 
 La imagen `monedas.jpg`, adquirida con un smartphone, consiste en monedas de distintos valores y tamaños, así como dados sobre un fondo de intensidad no uniforme (ver Figura 1).
 
@@ -23,6 +23,8 @@ El script segmenta dados y monedas distinguiendolos en distintos colores, de man
 El código también realiza la clasificación de distintos tipos de monedas y realiza un conteo automático. Se muestra en la imágen original.
 
 #### c) Determinación Automática de Números en Dados
+
+Para este ejercicio puede ejecutar parte por parte el archivo `ej1C.py`
 
 El mismo script determina el número presente en cada dado. Es decir qué cara del dado observamos
 
