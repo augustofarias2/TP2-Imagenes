@@ -113,7 +113,7 @@ def show_full_patents_detected():
             plt.tight_layout()
             plt.show()
         else:
-            print('No se detectaron 6 caracteres en ' + filename
+            print('No se detectaron 6 caracteres en ' + filename)
 
 
 show_full_patents_detected()
